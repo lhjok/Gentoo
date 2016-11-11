@@ -1,0 +1,303 @@
+自动网络检测：
+# gentoo-nofb    //加载光盘系统
+# ifconfig       //检查本地IP
+# ping -c 3 www.gentoo.org      //测试网络是否可用
+=============================================================================================================
+设置Root密码：
+# passwd    //这里设置ssh root登陆密码
+# /etc/init.d/sshd start    //启动ssh服务
+=============================================================================================================
+磁盘进行分区使用fdisk对磁盘进行分区：
+# fdisk /dev/sda
+-------------------------------------------------------------------------------------------------------------
+p = 查看分区（查看分区情况）
+n = 新建分区（p主分区，e逻辑分区，两次回车后输入分区大小：+1024M）
+d = 删除分区（选择要删除的分区号，回车确定）
+t = 设置分区类型（选择需要设置的分区号，回车后敲击“82”创建swap分区）
+w = 保存分区并退出
+-------------------------------------------------------------------------------------------------------------
+为分区应用文件系统：
+# mkfs.ext2 /dev/sdb3   ( /boot )    //SSD固态硬盘
+# mkfs.ext4 /dev/sdb4   ( / )    //SSD固态硬盘
+# mkswap /dev/sda1   //激活swap分区
+# swapon /dev/sda1   //激活swap分区
+# mkfs.ext4 /dev/sda5   ( /var )   //sda2是拓展分区占位符
+# mkfs.ext4 /dev/sda6   ( /home )
+-------------------------------------------------------------------------------------------------------------
+# mount /dev/sdb4 /mnt/gentoo    ( / )
+# mkdir /mnt/gentoo/boot     //创建boot目录
+# mount /dev/sdb3 /mnt/gentoo/boot    ( /boot )
+# mkdir /mnt/gentoo/var     //创建var目录
+# mount /dev/sda5 /mnt/gentoo/var    ( /var )
+=============================================================================================================
+下载Stage3阶段包：
+# cd /mnt/gentoo
+# wget http://.../stage3-amd64-systemd-20160918.tar.bz2
+# tar xvjpf stage3-amd64-systemd-20160918.tar.bz2 --xattrs
+-------------------------------------------------------------------------------------------------------------
+# nano -w /mnt/gentoo/etc/portage/make.conf
+-------------------------------------------------------------------------------------------------------------
+CFLAGS="-march=native -O2 -pipe"
+CXXFLAGS="${CFLAGS}"
+MAKEOPTS="-j5"
+VIDEO_CARDS="intel"
+INPUT_DEVICES="evdev"
+-------------------------------------------------------------------------------------------------------------
+选择境像站点:
+# mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf      //选择比较快的源镜像站点
+# mkdir /mnt/gentoo/etc/portage/repos.conf     //创建repos.conf文件夹
+# cp /mnt/gentoo/usr/share/portage/config/repos.conf /mnt/gentoo/etc/portage/repos.conf/gentoo.conf
+# nano -w /mnt/gentoo/etc/portage/repos.conf/gentoo.conf
+-------------------------------------------------------------------------------------------------------------
+sync-uri = rsync://rsync.cn.gentoo.org/gentoo-portage/
+=============================================================================================================
+挂载必要的文件系统:
+# mount -t proc proc /mnt/gentoo/proc
+# mount --rbind /sys /mnt/gentoo/sys
+# mount --make-rslave /mnt/gentoo/sys
+# mount --rbind /dev /mnt/gentoo/dev
+# mount --make-rslave /mnt/gentoo/dev
+进入新环境:
+# chroot /mnt/gentoo /bin/bash     //使用chroot将根位置从/（在安装媒介里）更改成/mnt/gentoo/（在分区里）
+# source /etc/profile     //使用source命令将一些设置（那些在/etc/profile中的）重新载入到内存中
+# export PS1="(chroot) $PS1"     //更改主提示符来帮助我们记住当前会话在一个chroot环境里面
+-------------------------------------------------------------------------------------------------------------
+# date 032916212014    （格式：月-日-时-分-年）
+-------------------------------------------------------------------------------------------------------------
+# nano -w /etc/resolv.conf     //设置DNS解析服务器
+-------------------------------------------------------------------------------------------------------------
+nameserver 114.114.114.114     //可以设置成路由器服务IP地址【例：192.168.2.1】
+-------------------------------------------------------------------------------------------------------------
+安装Portage快照
+# emerge-webrsync     //这里需要等待一会
+更新Portage树：
+# emerge --sync     //可选步骤，更新Portage树
+选择正确的配置文件：
+# eselect profile list     //查看配置文件列表
+# eselect profile set 5     //设置需要的配置文件
+配置USE变量：
+# nano -w /etc/portage/make.conf
+-------------------------------------------------------------------------------------------------------------
+USE="gtk gnome xft -qt4 qt5 gtkstyle pcre16 -kde alsa cdr dvd bindist mmx sse sse2 upnp-av networkmanager"
+LINGUAS="zh_CN"
+source /var/lib/layman/make.conf
+PORTDIR_OVERLAY="${PORTDIR} ${PORTDIR_OVERLAY}"
+-------------------------------------------------------------------------------------------------------------
+配置时区：
+# ls /usr/share/zoneinfo
+# echo "Asia/Shanghai" > /etc/timezone
+# emerge --config sys-libs/timezone-data
+# nano -w /etc/locale.gen
+-------------------------------------------------------------------------------------------------------------
+en_US ISO-8859-1
+en_US.UTF-8 UTF-8
+zh_CN UTF-8
+zh_CN.GBK GBK
+zh_CN.GB2312 GB2312
+zh_CN.GB18030 GB18030
+-------------------------------------------------------------------------------------------------------------
+# locale-gen
+# nano -w /etc/env.d/02locale
+-------------------------------------------------------------------------------------------------------------
+LANG="zh_CN.UTF-8"
+-------------------------------------------------------------------------------------------------------------
+现在重新加载环境：
+# env-update && source /etc/profile && export PS1="(chroot) $PS1"
+=============================================================================================================
+安装最新内核源码:
+# echo "=sys-kernel/gentoo-sources-4.8.5" >> /etc/portage/package.keywords
+# emerge --ask sys-kernel/gentoo-sources
+=============================================================================================================
+手动配置内核:【默认推荐】
+# emerge --ask sys-apps/pciutils
+# cd /usr/src/linux
+# make menuconfig     //这里需要保存配置文件
+-------------------------------------------------------------------------------------------------------------
+# make && make modules_install
+# make install
+=============================================================================================================
+使用【Genkernel】配置内核（配置Systemd系统）：
+# ln -sf /proc/self/mounts /etc/mtab     //创建mtab链接文件
+# emerge --ask sys-kernel/dracut
+# emerge --ask sys-kernel/genkernel-next
+# nano -w /etc/genkernel.conf
+-------------------------------------------------------------------------------------------------------------
+UDEV="yes"
+=============================================================================================================
+配置/boot挂载点：
+# nano -w /etc/fstab
+-------------------------------------------------------------------------------------------------------------
+/dev/sdb3   /boot   ext2    noauto,noatime   1 2
+/dev/sdb4   /       ext4    noatime          0 1
+/dev/sda1   none    swap    sw               0 0
+/dev/sda5   /var    ext4    defaults         0 2
+/dev/sda6   /home   ext4    defaults         0 2
+-------------------------------------------------------------------------------------------------------------
+# genkernel --install all
+# ls /boot/kernel* /boot/initramfs*
+=============================================================================================================
+更新@world集合：（更新系统）
+# emerge --ask --update --deep --newuse @world
+# emerge --deselect sys-fs/udev     //卸载udev依赖
+安装后的设置：
+# systemd-machine-id-setup
+# nano -w /etc/locale.conf
+-------------------------------------------------------------------------------------------------------------
+LANG="zh_CN.utf8"
+-------------------------------------------------------------------------------------------------------------
+# nano -w /etc/systemd/network/50-dhcp.network
+-------------------------------------------------------------------------------------------------------------
+[Match]
+Name=enp0s31f6
+
+[Network]
+DHCP=yes
+-------------------------------------------------------------------------------------------------------------
+系统守护进程管理网络配置:
+# systemctl enable systemd-networkd.service
+# systemctl start systemd-networkd.service
+# systemctl enable sshd.service
+# systemctl start sshd.service
+设置SSH远程登陆权限：
+# nano -w /etc/ssh/sshd_config
+-------------------------------------------------------------------------------------------------------------
+Port 22
+PermitRootLogin yes
+-------------------------------------------------------------------------------------------------------------
+# systemctl enable systemd-resolved.service
+# systemctl start systemd-resolved.service
+=============================================================================================================
+设置Root密码：
+# passwd
+网络工具：
+# emerge --ask net-misc/dhcpcd
+# systemctl enable dhcpcd.service
+# systemctl start dhcpcd.service
+系统日志：
+# emerge --ask app-admin/syslog-ng
+# systemctl enable syslog-ng.service
+# systemctl start syslog-ng.service
+安装GRUB2引导程序：
+# emerge --ask --update --newuse --verbose sys-boot/grub:2
+# emerge --ask sys-boot/os-prober    //自动识别并添加Windows引导
+# emerge --ask sys-fs/ntfs3g     //安装NTFS文件系统支持
+# grub-install /dev/sdb    //安装引导程序到硬盘（SSD固态硬盘）
+# nano -w /etc/default/grub
+-------------------------------------------------------------------------------------------------------------
+GRUB_CMDLINE_LINUX="init=/usr/lib/systemd/systemd"
+-------------------------------------------------------------------------------------------------------------
+# grub-mkconfig -o /boot/grub/grub.cfg    //自动生成配置文件
+安装完成退出安装环境：
+# exit
+# cd
+# umount -l /mnt/gentoo/dev{/shm,/pts,}
+# umount /mnt/gentoo{/boot,/sys,/proc,}
+# reboot
+=============================================================================================================
+设置主机名、中文编码、键盘等。
+# hostnamectl set-hostname Gentoo
+# localectl set-locale LANG=zh_CN.utf8
+# localectl set-keymap en_US
+# localectl set-x11-keymap en_US
+Root登陆后设置用户及密码：
+# useradd -m -G users,wheel,audio -s /bin/bash lhjok
+# passwd lhjok
+=============================================================================================================
+安装XORG显示服务器：
+# emerge --ask x11-base/xorg-drivers
+安装GNOME桌面环境：
+# emerge --ask --update --deep --newuse @world
+# emerge --ask gnome-base/gnome-light     //这里可能需设置【USE="-qt4 -qt5"】与GTK相冲突
+# emerge --ask media-fonts/source-han-sans     //安装思源中文字体
+# systemctl enable gdm.service
+卸载OpenRC引导程序：
+# emerge --ask --unmerge openrc
+=============================================================================================================
+# nano -w /etc/X11/xorg.conf.d/20-intel.conf
+-------------------------------------------------------------------------------------------------------------
+Section "Device"
+Identifier  "Intel Graphics"
+Driver      "intel"
+Option      "AccelMethod"  "uxa"
+EndSection
+=============================================================================================================
+安装第三方源工具：
+# emerge --ask app-portage/layman
+# layman -L && layman -a gentoo-zh
+# emerge --sync
+安装Fcitx中文输入法：
+# emerge --ask --unmerge ibus     //卸载默认绑定的ibus输入法
+# echo ">=app-i18n/fcitx-4.2.9.1 gtk2 gtk3 qt4" >> /etc/portage/package.use
+# emerge --ask fcitx fcitx-configtool fcitx-sogoupinyin
+# nano -w /etc/profile     //配置输入法
+-------------------------------------------------------------------------------------------------------------
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+-------------------------------------------------------------------------------------------------------------
+安装网易云音乐：
+# emerge --ask netease-cloud-music     //安装时可能会失败，可先安装好依赖后，再从官网下载DEB包解压手动安装
+# chown root:root /usr/lib/netease-cloud-music/chrome-sandbox     //手动安装要用到的权限设置
+# chmod 4755 /usr/lib/netease-cloud-music/chrome-sandbox     //手动安装要用到的权限设置
+安装常用工具：
+# emerge --ask media-gfx/gnome-font-viewer    //字体查看和安装
+# emerge --ask app-arch/file-roller    //归档管理器
+# emerge --ask sys-apps/gnome-disk-utility    //磁盘管理器
+# emerge --ask app-crypt/seahorse    //密码与密钥
+# emerge --ask gnome-extra/gnome-system-monitor    //系统监视器
+# emerge --ask media-gfx/gnome-screenshot     //截图工具
+# emerge --ask media-gfx/shotwell     //图片查看器
+清理系统常用命令：
+# emerge --depclean     //清楚孤立的软件包
+# rm -f /usr/portage/distfiles/*     //删除下载目录下的文件
+安装Virt-Manager虚拟机管理软件：
+# echo ">=net-misc/spice-gtk-0.31 python usbredir" >> /etc/portage/package.use
+# echo ">=net-libs/gtk-vnc-0.6.0 python" >> /etc/portage/package.use
+# echo ">=app-emulation/libvirt-glib-0.2.3 python" >> /etc/portage/package.use
+# echo ">=app-emulation/libvirt-2.1.0-r2 virt-network xen" >> /etc/portage/package.use
+# echo ">=app-emulation/qemu-2.7.0-r5 spice usbredir xen nfs xfs virtfs virgl" >> /etc/portage/package.use
+# echo ">=net-dns/dnsmasq-2.76 script" >> /etc/portage/package.use
+# echo ">=x11-drivers/xf86-video-qxl-0.1.4 xspice" >> /etc/portage/package.use
+# emerge --ask app-emulation/virt-manager     //虚拟机管理器
+# emerge --ask x11-drivers/xf86-video-qxl     //安装KVM显示驱动
+=============================================================================================================
+设置Virt-Manager镜像安装位置：
+# mkdir /home/libvirt
+# mkdir /home/libvirt/images
+# rm -rf /var/lib/libvirt/images
+# ln -s /home/libvirt/images /var/lib/libvirt/images
+# nano -w /etc/libvirt/storage/default.xml
+-------------------------------------------------------------------------------------------------------------
+/home/libvirt/images     //将images对应的目录修改即可
+=============================================================================================================
+配置桥接网络：
+# emerge --ask net-misc/bridge-utils    //安装桥接工具
+# brctl addbr vnet0    //创建虚拟网卡
+# brctl addif vnet0 enp0s31f6    //绑定硬件网卡到虚拟网卡
+# brctl show    //查看桥接网络
+=============================================================================================================
+# nano -w /etc/systemd/network/MyBridge.netdev
+-------------------------------------------------------------------------------------------------------------
+[NetDev]
+Name=vnet0
+Kind=bridge
+-------------------------------------------------------------------------------------------------------------
+# nano -w /etc/systemd/network/MyEth.network
+-------------------------------------------------------------------------------------------------------------
+[Match]
+Name=enp0s31f6
+
+[Network]
+Bridge=vnet0
+-------------------------------------------------------------------------------------------------------------
+# nano -w /etc/systemd/network/MyBridge.network    //两个文档相同的配置
+# nano -w /etc/systemd/network/50-dhcp.network    //两个文档相同的配置
+-------------------------------------------------------------------------------------------------------------
+[Match]
+Name=vnet0
+
+[Network]    //可选:【DHCP=v4】替换下面三行
+DNS=192.168.2.1    //域名解析地址
+Address=192.168.2.20/24    //静态分配IP地址/子网掩码
+Gateway=192.168.2.1    //网关地址
+=============================================================================================================
