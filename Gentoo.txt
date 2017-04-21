@@ -78,7 +78,7 @@ nameserver 114.114.114.114     //可以设置成路由器服务IP地址【例：
 配置USE变量：
 # nano -w /etc/portage/make.conf
 -------------------------------------------------------------------------------------------------------------
-USE="gtk gnome xft -qt4 qt5 gtkstyle pcre16 -kde alsa cdr dvd bindist mmx sse sse2 upnp-av"
+USE="gtk gnome wayland xft -qt4 qt5 gtkstyle pcre16 -kde alsa cdr dvd bindist mmx sse sse2 upnp-av"
 LINGUAS="zh_CN"
 PORTDIR_OVERLAY="${PORTDIR} ${PORTDIR_OVERLAY}"
 -------------------------------------------------------------------------------------------------------------
@@ -321,19 +321,19 @@ Gateway=192.168.2.1
 # vim /etc/nginx/nginx.conf
 ------------------------------------------------------------------------------------------------------------------
 server {
-		listen 80;
-		server_name localhost;
-
-		access_log /var/log/nginx/localhost.access_log main;
-		error_log /var/log/nginx/localhost.error_log info;
-
-		root /home/lhjok/work/www;
-		index index.html index.php;
-
-		location ~ .php$ {
-                fastcgi_pass 127.0.0.1:9000;
-                include fastcgi.conf;
-        }
+	listen 80;
+	server_name localhost;
+	
+	access_log /var/log/nginx/localhost.access_log main;
+	error_log /var/log/nginx/localhost.error_log info;
+	
+	root /home/lhjok/work/www;
+	index index.html index.php;
+	
+	location ~ .php$ {
+		fastcgi_pass 127.0.0.1:9000;
+		include fastcgi.conf;
+	}
 }
 ------------------------------------------------------------------------------------------------------------------
 # emerge --ask dev-db/mysql      //安装MySQL数据库
