@@ -40,7 +40,7 @@ w = 保存分区并退出
 CFLAGS="-march=native -O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 MAKEOPTS="-j5"
-VIDEO_CARDS="intel"
+VIDEO_CARDS="amdgpu radeonsi"
 INPUT_DEVICES="evdev"
 -------------------------------------------------------------------------------------------------------------
 选择境像站点:
@@ -78,7 +78,7 @@ nameserver 114.114.114.114     //可以设置成路由器服务IP地址【例：
 配置USE变量：
 # nano -w /etc/portage/make.conf
 -------------------------------------------------------------------------------------------------------------
-USE="gtk gnome wayland xft -qt4 qt5 gtkstyle pcre16 -kde alsa cdr dvd bindist mmx sse sse2 upnp-av"
+USE="gtk gnome wayland xft -qt4 qt5 gtkstyle pcre16 -kde alsa cdr dvd bindist mmx sse sse2 upnp-av glamor"
 LINGUAS="zh_CN"
 PORTDIR_OVERLAY="${PORTDIR} ${PORTDIR_OVERLAY}"
 -------------------------------------------------------------------------------------------------------------
@@ -109,11 +109,166 @@ LANG="zh_CN.UTF-8"
 =============================================================================================================
 手动配置内核:【默认推荐】
 # emerge --ask sys-apps/pciutils
+# emerge --ask sys-kernel/linux-firmware
 # cd /usr/src/linux
 # make menuconfig     //这里需要保存配置文件
 -------------------------------------------------------------------------------------------------------------
+Gentoo Linux --->
+    Support for init systems, system and service managers --->
+        [*] systemd
+[*] Enable the block layer  --->
+    [*] Block layer SG support v4
+Processor type and features  --->
+    [*] MTRR (Memory Type Range Register) support
+    [*] Enable seccomp to safely compute untrusted bytecode
+[*] Virtualization  --->
+    <*> Kernel-based Virtual Machine (KVM) support
+    <M> KVM for Intel processors support
+    <*> Host kernel accelerator for virtio net
+Device Drivers  --->
+    Multiple devices driver support (RAID and LVM)  --->
+        <*> Device mapper support
+        <*> Crypt target support
+        <*> Snapshot target
+        <*> Mirror target
+        <*> Multipath target
+        <*> I/O Path Selector based on the number of in-flight I/Os
+        <*> I/O Path Selector based on the service time
+    <*> Sound card support
+        <*> Advanced Linux Sound Architecture --->
+            HD-Audio  --->
+                // 声卡Realtek ALC1150
+                [*] Build Realtek HD-audio codec support
+                [*] Build Silicon Labs 3054 HD-modem codec support
+                [*] Enable generic HD-audio codec parser
+                [*] Support initialization patch loading for HD-audio
+                <*> whatever audio codec your soundcard needs
+                <*> Build HDMI/DisplayPort HD-audio codec support
+            (4096) Pre-allocated buffer size for HD-audio driver
+            [*] Dynamic device file minor numbers
+            (32) Max number of sound cards
+    <*> Serial ATA and Parallel ATA drivers  --->
+        [*] ATA ACPI Support
+        [*] SATA Port Multiplier support
+        <*> AHCI SATA support (ahci)
+        [*] ATA SFF support
+        [*] ATA BMDMA support
+        <*> Intel ESB, ICH, PIIX3, PIIX4 PATA/SATA support (ata_piix)
+    SCSI device support  --->
+        <*> SCSI device support
+        <*> SCSI disk support
+    Input device support --->
+        <*>  Event interface
+    [*] Network device support  --->
+        -*-  Ethernet driver support  --->
+            [*] Intel devices
+                // 网卡Intel I219-V
+                <M> Intel(R) PRO/100+ support
+                <M> Intel(R) PRO/1000 Gigabit Ethernet support
+                <M> Intel(R) PRO/1000 PCI-Express Gigabit Ethernet support
+                [*]   Support HW cross-timestamp on PCH devices
+                <M> Intel(R) 82575/82576 PCI-Express Gigabit Ethernet support
+                [*]   Intel(R) PCI-Express Gigabit adapters HWMON support
+                [*]   Direct Cache Access (DCA) Support
+                <M> Intel(R) 82576 Virtual Function Ethernet support
+                <M> Intel(R) PRO/10GbE support
+                <M> Intel(R) 10GbE PCI Express adapters support
+                [*]   Intel(R) 10GbE PCI Express adapters HWMON support
+                [*]   Direct Cache Access (DCA) Support
+                [*]   Data Center Bridging (DCB) Support
+                <M> Intel(R) 10GbE PCI Express Virtual Function Ethernet support
+                <M> Intel(R) Ethernet Controller XL710 Family support
+                <M> Intel(R) Ethernet Adaptive Virtual Function support
+                <M> Intel(R) FM10000 Ethernet Switch Host Interface Support
+            [*]  Network core driver support
+            <*>  Universal TUN/TAP device driver support
+            <M>  PPP (point-to-point protocol) support
+              <M>  PPP BSD-Compress compression
+              <M>  PPP Deflate compression
+              <M>  PPP MPPE compression (encryption)
+              <M>  PPP over Ethernet
+              <M>  PPP support for async serial ports
+              <M>  PPP support for sync tty ports
+    Graphics support  --->
+        Frame Buffer Devices --->
+            <*> Support for frame buffer devices --->
+        Console display driver support --->
+            <*>  Framebuffer Console Support
+        <*> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) --->
+            [*]   Enable legacy fbdev support for your modesetting driver
+        < > ATI Radeon
+        <*> AMD GPU
+            [*] Enable amdgpu support for SI parts
+            [*] Enable amdgpu support for CIK parts
+            [*]   Enable AMD powerplay component  
+            ACP (Audio CoProcessor) Configuration  ---> 
+                [*] Enable AMD Audio CoProcessor IP support (CONFIG_DRM_AMD_ACP)
+    Generic Driver Options  --->
+        [*] Maintain a devtmpfs filesystem to mount at /dev
+        -*- Userspace firmware loading support
+        [*] Include in-kernel firmware blobs in kernel binary
+        (amdgpu/polaris10_{ce,mc,me,mec2,mec,pfp,rlc,sdma1,sdma,smc,k_smc,smc_sk,uvd,vce}.bin)    // 这里回车输入括号内容
+        (/lib/firmware) Firmware blobs root directory    // 这里回车输入括号内容
+        [ ] Fallback user-helper invocation for firmware loading
+General setup  --->
+    [*] System V IPC
+    [*] open by fhandle syscalls
+    [*] Control Group support --->
+    [ ] Enable deprecated sysfs features to support old userspace tools
+    [*] Configure standard kernel features (expert users)  --->
+        [*] Enable eventpoll support
+        [*] Enable signalfd() system call
+        [*] Enable timerfd() system call
+    [*] Checkpoint/restore support
+    [*] Namespaces support  --->
+        [*] Network namespace
+Firmware Drivers  --->
+    [*] Export DMI identification via sysfs to userspace
+[*] Networking support  --->
+        Networking options  --->
+            [*] TCP/IP networking
+              [*] IP: advanced router
+            [*] Network packet filtering framework (Netfilter)  --->
+              [*]   Advanced netfilter configuration
+                IPv6: Netfilter Configuration  --->
+                    <*> IPv6 connection tracking support
+                    <*> IP6 tables support (required for filtering)
+            <*> Packet socket
+            <*> The IPv6 protocol
+            <*> 802.1d Ethernet Bridging
+        [*] Wireless  --->
+            <*> cfg80211 - wireless configuration API
+Kernel hacking  --->
+    Compile-time checks and compiler options  --->
+        [*] Debug Filesystem
+File systems  --->
+    <*> Second extended fs support
+        [*]   Ext2 extended attributes
+        [*]     Ext2 POSIX Access Control Lists (NEW)
+        [*]     Ext2 Security Labels (NEW)
+    <*> Btrfs filesystem
+    DOS/FAT/NT Filesystems  --->
+        (936) Default codepage for FAT
+        (utf8) Default iocharset for FAT
+        [*]   Enable FAT UTF-8 option by default
+        <*> NTFS file system support
+        <*> NTFS write support
+    <*> FUSE (Filesystem in Userspace) support
+    <*> Kernel automounter version 4 support (also supports v3)
+    Pseudo filesystems --->
+        [*] Tmpfs virtual memory file system support (former shm fs)
+        [*] Tmpfs POSIX Access Control Lists
+        [*] Tmpfs extended attributes
+        [*] /proc file system support
+        [*] sysfs file system support
+    [*] Inotify support for userspace
+    <*> The Extended 4 (ext4) filesystem
+    [*]   Ext4 POSIX Access Control Lists
+    [*]   Ext4 Security Labels
+-------------------------------------------------------------------------------------------------------------
 # make && make modules_install
 # make install
+# emerge --ask x11-drivers/xf86-video-amdgpu
 =============================================================================================================
 使用【Genkernel】配置内核（配置Systemd系统）：
 # ln -sf /proc/self/mounts /etc/mtab     //创建mtab链接文件
@@ -215,12 +370,13 @@ Root登陆后设置用户及密码：
 卸载OpenRC引导程序：
 # emerge --ask --unmerge openrc
 =============================================================================================================
-# nano -w /etc/X11/xorg.conf.d/20-intel.conf
+# nano -w /etc/X11/xorg.conf.d/20-amdgpu.conf
 -------------------------------------------------------------------------------------------------------------
 Section "Device"
-Identifier  "Intel Graphics"
-Driver      "intel"
-Option      "AccelMethod"  "uxa"
+    Identifier "AMD"
+    Driver "amdgpu"
+    Option "DRI" "3"
+    Option "TearFree" "true"
 EndSection
 =============================================================================================================
 安装第三方源工具：
