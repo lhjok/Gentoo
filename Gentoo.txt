@@ -104,7 +104,7 @@ LANG="zh_CN.UTF-8"
 # env-update && source /etc/profile && export PS1="(chroot) $PS1"
 =============================================================================================================
 安装最新内核源码:
-# echo "=sys-kernel/gentoo-sources-4.8.5" >> /etc/portage/package.keywords
+# echo "=sys-kernel/gentoo-sources-4.13.5" >> /etc/portage/package.keywords
 # emerge --ask sys-kernel/gentoo-sources
 =============================================================================================================
 手动配置内核:【默认推荐】
@@ -123,7 +123,7 @@ Processor type and features  --->
     [*] Enable seccomp to safely compute untrusted bytecode
 [*] Virtualization  --->
     <*> Kernel-based Virtual Machine (KVM) support
-    <M> KVM for Intel processors support
+    <*> KVM for Intel processors support
     <*> Host kernel accelerator for virtio net
 Device Drivers  --->
     Multiple devices driver support (RAID and LVM)  --->
@@ -243,9 +243,9 @@ Kernel hacking  --->
         [*] Debug Filesystem
 File systems  --->
     <*> Second extended fs support
-        [*]   Ext2 extended attributes
-        [*]     Ext2 POSIX Access Control Lists (NEW)
-        [*]     Ext2 Security Labels (NEW)
+        [*] Ext2 extended attributes
+        [*]   Ext2 POSIX Access Control Lists (NEW)
+        [*]   Ext2 Security Labels (NEW)
     <*> Btrfs filesystem
     DOS/FAT/NT Filesystems  --->
         (936) Default codepage for FAT
