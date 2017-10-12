@@ -123,7 +123,7 @@ Processor type and features  --->
     [*] Enable seccomp to safely compute untrusted bytecode
 [*] Virtualization  --->
     <*> Kernel-based Virtual Machine (KVM) support
-    <*> KVM for Intel processors support
+    <M> KVM for Intel processors support
     <*> Host kernel accelerator for virtio net
 Device Drivers  --->
     Multiple devices driver support (RAID and LVM)  --->
