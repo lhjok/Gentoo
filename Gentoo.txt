@@ -76,9 +76,9 @@ nameserver 114.114.114.114     //可以设置成路由器服务IP地址【例：
 # eselect profile list     //查看配置文件列表
 # eselect profile set 5     //设置需要的配置文件
 配置USE变量：
-# nano -w /etc/portage/make.conf
+# nano -w /etc/portage/make.conf     //警告：全局USE设置需要慎重，大多问题都是出自于这里。
 -------------------------------------------------------------------------------------------------------------
-USE="gtk gnome wayland xft -qt4 qt5 gtkstyle pcre16 -kde alsa cdr dvd bindist mmx sse sse2 upnp-av glamor"
+USE="gtk gnome -wayland xft -qt4 qt5 gtkstyle pcre16 -kde alsa amdgpu mmx sse sse2 upnp-av"
 LINGUAS="zh_CN"
 PORTDIR_OVERLAY="${PORTDIR} ${PORTDIR_OVERLAY}"
 -------------------------------------------------------------------------------------------------------------
@@ -107,33 +107,35 @@ LANG="zh_CN.UTF-8"
 # echo "=sys-kernel/gentoo-sources-4.13.5" >> /etc/portage/package.keywords
 # emerge --ask sys-kernel/gentoo-sources
 =============================================================================================================
-手动配置内核:【默认推荐】
 # emerge --ask sys-apps/pciutils
-# emerge --ask sys-kernel/linux-firmware
+# emerge --ask sys-kernel/linux-firmware     //这里设置【USE="savedconfig"】
+# ln -sf /proc/self/mounts /etc/mtab     //创建mtab链接文件
+# emerge --ask sys-kernel/dracut
+-------------------------------------------------------------------------------------------------------------
+手动配置内核:【默认推荐】     //即使在默认配置基础上只添加也会出问题的，而且问题难以琢磨，即使编译没有错误。
 # cd /usr/src/linux
 # make menuconfig     //这里需要保存配置文件
 -------------------------------------------------------------------------------------------------------------
+# make && make modules_install
+# make install
+=============================================================================================================
+使用【Genkernel】配置内核：【本人推荐】
+# emerge --ask sys-kernel/genkernel-next
+# nano -w /etc/genkernel.conf
+-------------------------------------------------------------------------------------------------------------
+UDEV="yes"
+FIRMWARE_DIR="/lib/firmware"
+-------------------------------------------------------------------------------------------------------------
+# genkernel --menuconfig --install all     //在Genkernel的基础上修改，可防止错误配置导致内核启动失败。（推荐）
+=============================================================================================================
 Gentoo Linux --->
     Support for init systems, system and service managers --->
         [*] systemd
-[*] Enable the block layer  --->
-    [*] Block layer SG support v4
-Processor type and features  --->
-    [*] MTRR (Memory Type Range Register) support
-    [*] Enable seccomp to safely compute untrusted bytecode
 [*] Virtualization  --->
     <*> Kernel-based Virtual Machine (KVM) support
     <M> KVM for Intel processors support
     <*> Host kernel accelerator for virtio net
 Device Drivers  --->
-    Multiple devices driver support (RAID and LVM)  --->
-        <*> Device mapper support
-        <*> Crypt target support
-        <*> Snapshot target
-        <*> Mirror target
-        <*> Multipath target
-        <*> I/O Path Selector based on the number of in-flight I/Os
-        <*> I/O Path Selector based on the service time
     <*> Sound card support
         <*> Advanced Linux Sound Architecture --->
             HD-Audio  --->
@@ -147,18 +149,6 @@ Device Drivers  --->
             (4096) Pre-allocated buffer size for HD-audio driver
             [*] Dynamic device file minor numbers
             (32) Max number of sound cards
-    <*> Serial ATA and Parallel ATA drivers  --->
-        [*] ATA ACPI Support
-        [*] SATA Port Multiplier support
-        <*> AHCI SATA support (ahci)
-        [*] ATA SFF support
-        [*] ATA BMDMA support
-        <*> Intel ESB, ICH, PIIX3, PIIX4 PATA/SATA support (ata_piix)
-    SCSI device support  --->
-        <*> SCSI device support
-        <*> SCSI disk support
-    Input device support --->
-        <*>  Event interface
     [*] Network device support  --->
         -*-  Ethernet driver support  --->
             [*] Intel devices
@@ -190,57 +180,20 @@ Device Drivers  --->
               <M>  PPP support for async serial ports
               <M>  PPP support for sync tty ports
     Graphics support  --->
-        Frame Buffer Devices --->
-            <*> Support for frame buffer devices --->
-        Console display driver support --->
-            <*>  Framebuffer Console Support
-        <*> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) --->
+        <M> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) --->
             [*]   Enable legacy fbdev support for your modesetting driver
         < > ATI Radeon
-        <*> AMD GPU
+        <M> AMD GPU
             [*] Enable amdgpu support for SI parts
             [*] Enable amdgpu support for CIK parts
             [*]   Enable AMD powerplay component  
-            ACP (Audio CoProcessor) Configuration  ---> 
+            ACP (Audio CoProcessor) Configuration  --->
                 [*] Enable AMD Audio CoProcessor IP support (CONFIG_DRM_AMD_ACP)
     Generic Driver Options  --->
         [*] Maintain a devtmpfs filesystem to mount at /dev
-        -*- Userspace firmware loading support
         [*] Include in-kernel firmware blobs in kernel binary
-        (amdgpu/polaris10_{ce,mc,me,mec2,mec,pfp,rlc,sdma1,sdma,smc,k_smc,smc_sk,uvd,vce}.bin)    // 这里回车输入括号内容
+        (amdgpu/polaris10_ce.bin amdgpu/polaris10_k_smc.bin amdgpu/polaris10_mc.bin amdgpu/polaris10_me.bin amdgpu/polaris10_mec2.bin amdgpu/polaris10_mec.bin amdgpu/polaris10_pfp.bin amdgpu/polaris10_rlc.bin amdgpu/polaris10_sdma1.bin amdgpu/polaris10_sdma.bin amdgpu/polaris10_smc.bin amdgpu/polaris10_smc_sk.bin amdgpu/polaris10_uvd.bin amdgpu/polaris10_vce.bin)    // 这里回车输入括号内容
         (/lib/firmware) Firmware blobs root directory    // 这里回车输入括号内容
-        [ ] Fallback user-helper invocation for firmware loading
-General setup  --->
-    [*] System V IPC
-    [*] open by fhandle syscalls
-    [*] Control Group support --->
-    [ ] Enable deprecated sysfs features to support old userspace tools
-    [*] Configure standard kernel features (expert users)  --->
-        [*] Enable eventpoll support
-        [*] Enable signalfd() system call
-        [*] Enable timerfd() system call
-    [*] Checkpoint/restore support
-    [*] Namespaces support  --->
-        [*] Network namespace
-Firmware Drivers  --->
-    [*] Export DMI identification via sysfs to userspace
-[*] Networking support  --->
-        Networking options  --->
-            [*] TCP/IP networking
-              [*] IP: advanced router
-            [*] Network packet filtering framework (Netfilter)  --->
-              [*]   Advanced netfilter configuration
-                IPv6: Netfilter Configuration  --->
-                    <*> IPv6 connection tracking support
-                    <*> IP6 tables support (required for filtering)
-            <*> Packet socket
-            <*> The IPv6 protocol
-            <*> 802.1d Ethernet Bridging
-        [*] Wireless  --->
-            <*> cfg80211 - wireless configuration API
-Kernel hacking  --->
-    Compile-time checks and compiler options  --->
-        [*] Debug Filesystem
 File systems  --->
     <*> Second extended fs support
         [*] Ext2 extended attributes
@@ -265,19 +218,9 @@ File systems  --->
     <*> The Extended 4 (ext4) filesystem
     [*]   Ext4 POSIX Access Control Lists
     [*]   Ext4 Security Labels
--------------------------------------------------------------------------------------------------------------
-# make && make modules_install
-# make install
-# emerge --ask x11-drivers/xf86-video-amdgpu
 =============================================================================================================
-使用【Genkernel】配置内核（配置Systemd系统）：
-# ln -sf /proc/self/mounts /etc/mtab     //创建mtab链接文件
-# emerge --ask sys-kernel/dracut
-# emerge --ask sys-kernel/genkernel-next
-# nano -w /etc/genkernel.conf
+# ls /boot/kernel* /boot/initramfs*
 -------------------------------------------------------------------------------------------------------------
-UDEV="yes"
-=============================================================================================================
 配置/boot挂载点：
 # nano -w /etc/fstab
 -------------------------------------------------------------------------------------------------------------
@@ -286,9 +229,6 @@ UDEV="yes"
 /dev/sda1   none    swap    sw               0 0
 /dev/sda5   /var    ext4    defaults         0 2
 /dev/sda6   /home   ext4    defaults         0 2
--------------------------------------------------------------------------------------------------------------
-# genkernel --install all
-# ls /boot/kernel* /boot/initramfs*
 =============================================================================================================
 更新@world集合：（更新系统）
 # emerge --ask --update --deep --newuse @world
@@ -339,6 +279,7 @@ PermitRootLogin yes
 # nano -w /etc/default/grub
 -------------------------------------------------------------------------------------------------------------
 GRUB_CMDLINE_LINUX="init=/usr/lib/systemd/systemd"
+GRUB_TIMEOUT=60
 -------------------------------------------------------------------------------------------------------------
 # grub-mkconfig -o /boot/grub/grub.cfg    //自动生成配置文件
 安装完成退出安装环境：
@@ -359,6 +300,7 @@ Root登陆后设置用户及密码：
 =============================================================================================================
 安装XORG显示服务器：
 # emerge --ask x11-base/xorg-drivers
+# emerge --ask x11-drivers/xf86-video-amdgpu     //这里设置【USE="glamor"】
 安装GNOME桌面环境：
 # emerge --ask --update --deep --newuse @world
 # emerge --ask gnome-base/gnome-light     //这里可能需设置【USE="-qt4 -qt5"】与GTK相冲突
@@ -503,4 +445,5 @@ server {
 1，尽量找出被依赖的库并安装，或者执行：# emerge --depclean     //审查并安装依赖关系。
 2，依赖的版本问题，如Python脚本语言的版本，只需要添加USE变量即可，如下：（选择的是python2_7）
 USE="python_single_target_python2_7 -python_single_target_python3_4"
+3，全局USE设置会导致依赖冲突和依赖导致的编译错误，大多数让人头痛的问题都来源于这里。
 ==================================================================================================================
