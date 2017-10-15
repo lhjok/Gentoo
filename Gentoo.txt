@@ -397,7 +397,8 @@ Name=enp0s31f6
 [Network]
 Bridge=vnet0
 -------------------------------------------------------------------------------------------------------------
-# vim /etc/systemd/network/MyBridge.network    //可选:【DHCP=v4】替换[Network]下面三行
+# vim /etc/systemd/network/MyBridge.network    //两个文档相同的配置，可选:【DHCP=v4】替换[Network]下面三行
+# vim /etc/systemd/network/50-dhcp.network    //如下内容覆盖之前配置，可选:【DHCP=v4】替换[Network]下面三行
 -------------------------------------------------------------------------------------------------------------
 [Match]
 Name=vnet0
@@ -418,19 +419,19 @@ Gateway=192.168.2.1
 # vim /etc/nginx/nginx.conf
 ------------------------------------------------------------------------------------------------------------------
 server {
-	listen 80;
-	server_name localhost;
-	
-	access_log /var/log/nginx/localhost.access_log main;
-	error_log /var/log/nginx/localhost.error_log info;
-	
-	root /home/lhjok/work/www;
-	index index.html index.php;
-	
-	location ~ .php$ {
-		fastcgi_pass 127.0.0.1:9000;
-		include fastcgi.conf;
-	}
+    listen 80;
+    server_name localhost;
+
+    access_log /var/log/nginx/localhost.access_log main;
+    error_log /var/log/nginx/localhost.error_log info;
+
+    root /home/lhjok/work/www;
+    index index.html index.php;
+
+    location ~ .php$ {
+        fastcgi_pass 127.0.0.1:9000;
+        include fastcgi.conf;
+    }
 }
 ------------------------------------------------------------------------------------------------------------------
 # emerge --ask dev-db/mysql      //安装MySQL数据库
