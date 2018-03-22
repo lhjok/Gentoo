@@ -136,8 +136,25 @@ Gentoo Linux --->
     <M> KVM for Intel processors support
     <*> Host kernel accelerator for virtio net
 Device Drivers  --->
+    [*] HID Devices  --->
+        <*>   USB Human Interface Device (full HID) support
+    Multimedia devices  --->
+        <*> Video For Linux
+        [*] Video Capture Adapters --->
+            [*] Autoselect pertinent encoders/decoders and other helper chips
+            [*] V4L USB Devices --->
+                <M> USB Video Class (UVC)
+                [*]   UVC input events device support
+    USB support  --->
+        <*>   OHCI HCD support
+        <*>   UHCI HCD (most Intel and VIA) support
+    Input Device support ->
+        [*] Miscellaneous devices ->
+            <*> User level driver support
     <*> Sound card support
         <*> Advanced Linux Sound Architecture --->
+            USB sound devices -->
+                <*> USB Audio/MIDI driver
             HD-Audio  --->
                 // 声卡Realtek ALC1150
                 [*] Build Realtek HD-audio codec support
@@ -311,6 +328,7 @@ Root登陆后设置用户及密码：
 # systemctl enable gdm.service
 卸载OpenRC引导程序：
 # emerge --ask --unmerge openrc
+# echo "=sys-apps/openrc-0.32.1" >> /etc/portage/package.mask     //屏蔽Openrc禁止重新安装
 =============================================================================================================
 # nano -w /etc/X11/xorg.conf.d/20-amdgpu.conf
 -------------------------------------------------------------------------------------------------------------
@@ -326,7 +344,7 @@ EndSection
 # layman -L && layman -a gentoo-zh
 # emerge --sync
 安装Fcitx中文输入法：
-# rm -f usr/bin/ibus-daemon     //卸载默认绑定的ibus输入法
+# rm -f /usr/bin/ibus-daemon     //卸载默认绑定的ibus输入法
 # echo ">=app-i18n/fcitx-4.2.9.1 gtk2 gtk3 qt4 qt5" >> /etc/portage/package.use
 # emerge --ask fcitx fcitx-configtool fcitx-sogoupinyin
 # emerge --ask dev-lang/go      //安装Go编程语言
