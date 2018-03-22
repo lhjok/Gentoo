@@ -136,15 +136,16 @@ Gentoo Linux --->
     <M> KVM for Intel processors support
     <*> Host kernel accelerator for virtio net
 Device Drivers  --->
-    [*] HID Devices  --->
-        <*>   USB Human Interface Device (full HID) support
-    Multimedia devices  --->
-        <*> Video For Linux
-        [*] Video Capture Adapters --->
-            [*] Autoselect pertinent encoders/decoders and other helper chips
-            [*] V4L USB Devices --->
-                <M> USB Video Class (UVC)
-                [*]   UVC input events device support
+    Multimedia support  --->
+        [*]   Cameras/video grabbers support
+        [*]   Media Controller API
+        [*]   V4L2 sub-device userspace API
+        [*] Media USB Adapters  --->
+            <M> USB Video Class (UVC)
+            [*]   UVC input events device support
+            <M>   CPiA2 Video For Linux
+        [*]   V4L platform devices  --->
+        [*] Autoselect pertinent encoders/decoders and other helper chips
     USB support  --->
         <*>   OHCI HCD support
         <*>   UHCI HCD (most Intel and VIA) support
@@ -209,7 +210,7 @@ Device Drivers  --->
     Generic Driver Options  --->
         [*] Maintain a devtmpfs filesystem to mount at /dev
         [*] Include in-kernel firmware blobs in kernel binary
-        (amdgpu/polaris10_ce.bin amdgpu/polaris10_k_smc.bin amdgpu/polaris10_mc.bin amdgpu/polaris10_me.bin amdgpu/polaris10_mec2.bin amdgpu/polaris10_mec.bin amdgpu/polaris10_pfp.bin amdgpu/polaris10_rlc.bin amdgpu/polaris10_sdma1.bin amdgpu/polaris10_sdma.bin amdgpu/polaris10_smc.bin amdgpu/polaris10_smc_sk.bin amdgpu/polaris10_uvd.bin amdgpu/polaris10_vce.bin)    // 这里回车输入括号内容
+        (amdgpu/polaris10_ce.bin amdgpu/polaris10_k_smc.bin amdgpu/polaris10_mc.bin amdgpu/polaris10_me.bin amdgpu/polaris10_mec2.bin amdgpu/polaris10_mec.bin amdgpu/polaris10_pfp.bin amdgpu/polaris10_rlc.bin amdgpu/polaris10_sdma1.bin amdgpu/polaris10_sdma.bin amdgpu/polaris10_smc.bin amdgpu/polaris10_smc_sk.bin amdgpu/polaris10_uvd.bin amdgpu/polaris10_vce.bin amdgpu/polaris10_ce_2.bin amdgpu/polaris10_me_2.bin amdgpu/polaris10_mec_2.bin amdgpu/polaris10_pfp_2.bin amdgpu/polaris10_mec2_2.bin)    // 这里回车输入括号内容
         (/lib/firmware) Firmware blobs root directory    // 这里回车输入括号内容
 File systems  --->
     <*> Second extended fs support
