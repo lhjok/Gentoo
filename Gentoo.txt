@@ -41,7 +41,7 @@ CFLAGS="-march=native -O2 -pipe"
 CXXFLAGS="${CFLAGS}"
 MAKEOPTS="-j5"
 VIDEO_CARDS="amdgpu radeonsi"
-INPUT_DEVICES="evdev"
+INPUT_DEVICES="libinput"
 -------------------------------------------------------------------------------------------------------------
 选择境像站点:
 # mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf      //选择比较快的源镜像站点
@@ -78,7 +78,7 @@ nameserver 114.114.114.114     //可以设置成路由器服务IP地址【例：
 配置USE变量：
 # nano -w /etc/portage/make.conf     //警告：全局USE设置需要慎重，大多问题都是出自于这里。
 -------------------------------------------------------------------------------------------------------------
-USE="gtk gnome -wayland xft -qt4 qt5 gtkstyle pcre16 -kde alsa amdgpu mmx sse sse2 upnp-av"
+USE="gtk gnome wayland xft -qt4 -kde qt5 gtkstyle alsa amdgpu pcre16 mmx sse sse2 upnp-av"
 LINGUAS="zh_CN"
 PORTDIR_OVERLAY="${PORTDIR} ${PORTDIR_OVERLAY}"
 -------------------------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ LANG="zh_CN.UTF-8"
 # env-update && source /etc/profile && export PS1="(chroot) $PS1"
 =============================================================================================================
 安装最新内核源码:
-# echo "=sys-kernel/gentoo-sources-4.13.5" >> /etc/portage/package.keywords
+# echo "=sys-kernel/gentoo-sources-4.15.12" >> /etc/portage/package.keywords
 # emerge --ask sys-kernel/gentoo-sources
 =============================================================================================================
 # emerge --ask sys-apps/pciutils
@@ -150,6 +150,7 @@ Device Drivers  --->
         <*>   OHCI HCD support
         <*>   UHCI HCD (most Intel and VIA) support
     Input Device support ->
+        <*>  Event interface
         [*] Miscellaneous devices ->
             <*> User level driver support
     <*> Sound card support
@@ -347,7 +348,7 @@ EndSection
 安装Fcitx中文输入法：
 # rm -f /usr/bin/ibus-daemon     //卸载默认绑定的ibus输入法
 # echo ">=app-i18n/fcitx-4.2.9.1 gtk2 gtk3 qt4 qt5" >> /etc/portage/package.use
-# emerge --ask fcitx fcitx-configtool fcitx-sogoupinyin
+# emerge --ask fcitx fcitx-configtool
 # emerge --ask dev-lang/go      //安装Go编程语言
 # nano -w /etc/profile     //配置输入法和GO语言环境变量
 -------------------------------------------------------------------------------------------------------------
