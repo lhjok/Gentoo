@@ -1,5 +1,5 @@
 自动网络检测：
-# gentoo-nofb    //加载光盘系统
+# gentoo    //加载光盘系统
 # ifconfig       //检查本地IP
 # ping -c 3 www.gentoo.org      //测试网络是否可用
 =============================================================================================================
@@ -47,7 +47,7 @@ INPUT_DEVICES="libinput"
 # mirrorselect -i -o >> /mnt/gentoo/etc/portage/make.conf      //选择比较快的源镜像站点
 # mkdir /mnt/gentoo/etc/portage/repos.conf     //创建repos.conf文件夹
 # cp /mnt/gentoo/usr/share/portage/config/repos.conf /mnt/gentoo/etc/portage/repos.conf/gentoo.conf
-# nano -w /mnt/gentoo/etc/portage/repos.conf/gentoo.conf
+# nano -w /mnt/gentoo/etc/portage/repos.conf/gentoo.conf     //可选
 -------------------------------------------------------------------------------------------------------------
 sync-uri = rsync://rsync.cn.gentoo.org/gentoo-portage/
 =============================================================================================================
@@ -104,7 +104,7 @@ LANG="zh_CN.UTF-8"
 # env-update && source /etc/profile && export PS1="(chroot) $PS1"
 =============================================================================================================
 安装最新内核源码:
-# echo "=sys-kernel/gentoo-sources-4.15.12" >> /etc/portage/package.keywords
+# echo "=sys-kernel/gentoo-sources-4.19.37" >> /etc/portage/package.keywords
 # emerge --ask sys-kernel/gentoo-sources
 =============================================================================================================
 # emerge --ask sys-apps/pciutils
@@ -325,9 +325,9 @@ Root登陆后设置用户及密码：
 # useradd -m -G users,wheel,audio -s /bin/bash lhjok
 # passwd lhjok
 =============================================================================================================
-安装XORG显示服务器：
-# emerge --ask x11-base/xorg-drivers
-# emerge --ask x11-drivers/xf86-video-amdgpu     //这里设置【USE="glamor"】
+安装Guix软件包管理器：
+# emerge --ask sys-apps/guix      //GUN Guix软件包管理器
+# systemctl enable guix-daemon.service      //开机启动守护进程
 安装GNOME桌面环境：
 # emerge --ask --update --deep --newuse @world
 # emerge --ask gnome-base/gnome-light     //这里可能需设置【USE="-qt4 -qt5"】与GTK相冲突
@@ -335,6 +335,7 @@ Root登陆后设置用户及密码：
 # systemctl start NetworkManager
 # systemctl enable NetworkManager      //开机启动网络管理器
 # emerge --ask media-fonts/source-han-sans     //安装思源中文字体
+# emerge --ask dev-libs/amdgpu-pro-opencl     //安装闭源官方AMD显卡驱动
 # systemctl enable gdm.service
 卸载OpenRC引导程序：
 # emerge --ask --unmerge openrc
@@ -353,23 +354,17 @@ EndSection
 # emerge --ask app-portage/layman
 # layman -L && layman -a gentoo-zh
 # emerge --sync
-安装Fcitx中文输入法：
-# rm -f /usr/bin/ibus-daemon     //卸载默认绑定的ibus输入法
-# echo ">=app-i18n/fcitx-4.2.9.1 gtk2 gtk3 qt4 qt5" >> /etc/portage/package.use
-# emerge --ask fcitx fcitx-configtool
+安装ibus智能拼音输入法：
+# emerge --ask app-i18n/ibus-table      //安装中文框架
+# emerge --ask app-i18n/ibus-table-chinese      //安装中文框架
+# emerge --ask app-i18n/ibus-libpinyin      //安装智能拼音输入法
+# emerge --ask app-i18n/ibus-rime     //安装五笔等输入法
 # emerge --ask dev-lang/go      //安装Go编程语言
 # nano -w /etc/profile     //配置输入法和GO语言环境变量
 -------------------------------------------------------------------------------------------------------------
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
 export GOPATH=$HOME/.golang
 export PATH=$PATH:$GOPATH/bin
 -------------------------------------------------------------------------------------------------------------
-安装网易云音乐：
-# emerge --ask netease-cloud-music     //安装时可能会失败，可先安装好依赖后，再从官网下载DEB包解压手动安装
-# chown root:root /usr/lib/netease-cloud-music/chrome-sandbox     //手动安装要用到的权限设置
-# chmod 4755 /usr/lib/netease-cloud-music/chrome-sandbox     //手动安装要用到的权限设置
 安装常用工具：
 # emerge --ask media-gfx/gnome-font-viewer    //字体查看和安装
 # emerge --ask app-arch/file-roller    //归档管理器
@@ -380,6 +375,7 @@ export PATH=$PATH:$GOPATH/bin
 # emerge --ask media-gfx/shotwell     //图片查看器
 # emerge --ask app-editors/vim     //安装代码编辑器
 # emerge --ask app-editors/gedit     //安装代码编辑器
+# emerge --ask app-office/wps-office     //安装WPS办公套件
 清理系统常用命令：
 # emerge --depclean     //清楚孤立的软件包
 # rm -f /usr/portage/distfiles/*     //删除下载目录下的文件
