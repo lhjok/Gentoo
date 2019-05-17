@@ -18,17 +18,17 @@ w = 保存分区并退出
 -------------------------------------------------------------------------------------------------------------
 为分区应用文件系统：
 # mkfs.ext2 /dev/sdb3   ( /boot )    //SSD固态硬盘
-# mkfs.ext4 /dev/sdb4   ( / )    //SSD固态硬盘
+# mkfs.ext4 /dev/sdb2   ( / )    //SSD固态硬盘
 # mkswap /dev/sda1   //激活swap分区
 # swapon /dev/sda1   //激活swap分区
-# mkfs.ext4 /dev/sda5   ( /var )   //sda2是拓展分区占位符
+# mkfs.ext4 /dev/sdb4   ( /var )   //sda2是拓展分区占位符
 # mkfs.ext4 /dev/sda6   ( /home )     //如果重装又不想格式化，不要执行这句
 -------------------------------------------------------------------------------------------------------------
-# mount /dev/sdb4 /mnt/gentoo    ( / )
+# mount /dev/sdb2 /mnt/gentoo    ( / )
 # mkdir /mnt/gentoo/boot     //创建boot目录
 # mount /dev/sdb3 /mnt/gentoo/boot    ( /boot )
 # mkdir /mnt/gentoo/var     //创建var目录
-# mount /dev/sda5 /mnt/gentoo/var    ( /var )
+# mount /dev/sdb4 /mnt/gentoo/var    ( /var )
 =============================================================================================================
 下载Stage3阶段包：
 # cd /mnt/gentoo
@@ -252,9 +252,9 @@ File systems  --->
 # nano -w /etc/fstab
 -------------------------------------------------------------------------------------------------------------
 /dev/sdb3   /boot   ext2    noauto,noatime   1 2
-/dev/sdb4   /       ext4    noatime          0 1
+/dev/sdb2   /       ext4    noatime          0 1
 /dev/sda1   none    swap    sw               0 0
-/dev/sda5   /var    ext4    defaults         0 2
+/dev/sdb4   /var    ext4    defaults         0 2
 /dev/sda6   /home   ext4    defaults         0 2
 =============================================================================================================
 更新@world集合：（更新系统）
