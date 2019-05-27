@@ -328,6 +328,20 @@ Root登陆后设置用户及密码：
 安装Guix软件包管理器：
 # emerge --ask sys-apps/guix      //GUN Guix软件包管理器
 # systemctl enable guix-daemon.service      //开机启动守护进程
+-------------------------------------------------------------------------------------------------------------
+rm -rf ~/.local/share/applications
+rm -rf ~/.local/share/icons
+ln -s ~/.guix-profile/share/applications ~/.local/share/applications
+ln -s ~/.guix-profile/share/icons ~/.local/share/icons
+sudo ln -s ~/.local/share/fonts ~/.guix-profile/share/fonts
+sudo rm -f /var/guix/profiles/per-user/lhjok/current-guix
+sudo ln -sf /var/guix/profiles/per-user/lhjok/guix-profile /var/guix/profiles/per-user/lhjok/current-guix
+=============================================================================================================
+$ nano -w ~/.bash_profile
+export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
+GUIX_PROFILE="$HOME/.guix-profile" ; \
+source "$HOME/.guix-profile/etc/profile"
+-------------------------------------------------------------------------------------------------------------
 安装GNOME桌面环境：
 # emerge --ask --update --deep --newuse @world
 # emerge --ask gnome-base/gnome-light     //这里可能需设置【USE="-qt4 -qt5"】与GTK相冲突
