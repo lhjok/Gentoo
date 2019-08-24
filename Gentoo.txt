@@ -221,6 +221,24 @@ Device Drivers  --->
         [*] Include in-kernel firmware blobs in kernel binary
         (amdgpu/polaris10_ce.bin amdgpu/polaris10_k_smc.bin amdgpu/polaris10_mc.bin amdgpu/polaris10_me.bin amdgpu/polaris10_mec2.bin amdgpu/polaris10_mec.bin amdgpu/polaris10_pfp.bin amdgpu/polaris10_rlc.bin amdgpu/polaris10_sdma1.bin amdgpu/polaris10_sdma.bin amdgpu/polaris10_smc.bin amdgpu/polaris10_smc_sk.bin amdgpu/polaris10_uvd.bin amdgpu/polaris10_vce.bin amdgpu/polaris10_ce_2.bin amdgpu/polaris10_me_2.bin amdgpu/polaris10_mec_2.bin amdgpu/polaris10_pfp_2.bin amdgpu/polaris10_mec2_2.bin)    // 这里回车输入括号内容
         (/lib/firmware) Firmware blobs root directory    // 这里回车输入括号内容
+[*] Networking support --->
+      <M> Bluetooth subsystem support --->
+            [*] Bluetooth Classic (BR/EDR) features
+            <*> RFCOMM protocol support
+            [ ] RFCOMM TTY support
+            < > BNEP protocol support
+            [ ] Multicast filter support
+            [ ] Protocol filter support
+            <*> HIDP protocol support
+            [*] Bluetooth High Speed (HS) features
+            [*] Bluetooth Low Energy (LE) features
+                Bluetooth device drivers --->
+                <M> HCI USB driver
+                <M> HCI UART driver
+      <*>   RF switch subsystem support --->
+    Device Drivers --->
+          HID support --->
+            <*> User-space I/O driver support for HID subsystem
 File systems  --->
     <*> Second extended fs support
         [*] Ext2 extended attributes
@@ -328,6 +346,19 @@ Root登陆后设置用户及密码：
 安装Guix软件包管理器：
 # emerge --ask sys-apps/guix      //GUN Guix软件包管理器
 # systemctl enable guix-daemon.service      //开机启动守护进程
+# nano -w /etc/profile      //配置全局环境变量
+-------------------------------------------------------------------------------------------------------------
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+
+export GOPATH=$HOME/.golang
+export PATH=$PATH:$GOPATH/bin:$HOME/.config/guix/current/bin:$PATH:$HOME/.cargo/bin
+export INFOPATH="$HOME/.config/guix/current/share/info:$INFOPATH"
+-------------------------------------------------------------------------------------------------------------
+guix install glibc-locales     //安装语言环境(非特权用户执行)
+guix install font-adobe-source-han-sans:cn     //安装中文字体(非特权用户执行)
+//不要轻易执行：(guix gc)进行垃圾清理，否则每次安装软件，都要重复安装依赖包。
 -------------------------------------------------------------------------------------------------------------
 rm -rf ~/.local/share/applications
 rm -rf ~/.local/share/icons
@@ -345,8 +376,6 @@ source "$HOME/.guix-profile/etc/profile"
 安装GNOME桌面环境：
 # emerge --ask --update --deep --newuse @world
 # emerge --ask gnome-base/gnome-light     //这里可能需设置【USE="-qt4 -qt5"】与GTK相冲突
-# emerge --ask net-misc/networkmanager     //安装网络管理器
-# systemctl start NetworkManager
 # systemctl enable NetworkManager      //开机启动网络管理器
 # emerge --ask media-fonts/source-han-sans     //安装思源中文字体
 # emerge --ask dev-libs/amdgpu-pro-opencl     //安装闭源官方AMD显卡驱动
@@ -374,10 +403,6 @@ EndSection
 # emerge --ask app-i18n/ibus-libpinyin      //安装智能拼音输入法
 # emerge --ask app-i18n/ibus-rime     //安装五笔等输入法
 # emerge --ask dev-lang/go      //安装Go编程语言
-# nano -w /etc/profile     //配置输入法和GO语言环境变量
--------------------------------------------------------------------------------------------------------------
-export GOPATH=$HOME/.golang
-export PATH=$PATH:$GOPATH/bin
 -------------------------------------------------------------------------------------------------------------
 安装常用工具：
 # emerge --ask media-gfx/gnome-font-viewer    //字体查看和安装
@@ -395,9 +420,7 @@ export PATH=$PATH:$GOPATH/bin
 # rm -f /usr/portage/distfiles/*     //删除下载目录下的文件
 # rm -f /root/.bash_history      //删除历史终端记录
 安装Virt-Manager虚拟机管理软件：
-# echo ">=net-misc/spice-gtk-0.31 python usbredir" >> /etc/portage/package.use
-# echo ">=net-libs/gtk-vnc-0.6.0 python" >> /etc/portage/package.use
-# echo ">=app-emulation/libvirt-glib-0.2.3 python" >> /etc/portage/package.use
+# echo ">=net-misc/spice-gtk-0.31 usbredir" >> /etc/portage/package.use
 # echo ">=app-emulation/libvirt-2.1.0-r2 virt-network xen" >> /etc/portage/package.use
 # echo ">=app-emulation/qemu-2.7.0-r5 spice usbredir xen nfs xfs virtfs virgl" >> /etc/portage/package.use
 # echo ">=net-dns/dnsmasq-2.76 script" >> /etc/portage/package.use
@@ -488,4 +511,11 @@ server {
 2，依赖的版本问题，如Python脚本语言的版本，只需要添加USE变量即可，如下：（选择的是python2_7）
 USE="python_single_target_python2_7 -python_single_target_python3_4"
 3，全局USE设置会导致依赖冲突和依赖导致的编译错误，大多数让人头痛的问题都来源于这里。
+------------------------------------------------------------------------------------------------------------------
+解决系统时间不同步问题（同步网络时间）：
+# emerge --ask net-misc/ntp     //网络时间同步工具
+# timedatectl set-timezone Asia/Shanghai     //设置中国上海时区
+# ntpdate time.windows.com     //同步网络时间
+# timedatectl set-local-rtc 1     //要将硬件时钟设置为当前系统时钟（本地时间标准）
+# timedatectl set-ntp 1     //启用网络时间同步
 ==================================================================================================================
