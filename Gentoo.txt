@@ -222,23 +222,23 @@ Device Drivers  --->
         (amdgpu/polaris10_ce.bin amdgpu/polaris10_k_smc.bin amdgpu/polaris10_mc.bin amdgpu/polaris10_me.bin amdgpu/polaris10_mec2.bin amdgpu/polaris10_mec.bin amdgpu/polaris10_pfp.bin amdgpu/polaris10_rlc.bin amdgpu/polaris10_sdma1.bin amdgpu/polaris10_sdma.bin amdgpu/polaris10_smc.bin amdgpu/polaris10_smc_sk.bin amdgpu/polaris10_uvd.bin amdgpu/polaris10_vce.bin amdgpu/polaris10_ce_2.bin amdgpu/polaris10_me_2.bin amdgpu/polaris10_mec_2.bin amdgpu/polaris10_pfp_2.bin amdgpu/polaris10_mec2_2.bin)    // 这里回车输入括号内容
         (/lib/firmware) Firmware blobs root directory    // 这里回车输入括号内容
 [*] Networking support --->
-      <M> Bluetooth subsystem support --->
-            [*] Bluetooth Classic (BR/EDR) features
-            <*> RFCOMM protocol support
-            [ ] RFCOMM TTY support
-            < > BNEP protocol support
-            [ ] Multicast filter support
-            [ ] Protocol filter support
-            <*> HIDP protocol support
-            [*] Bluetooth High Speed (HS) features
-            [*] Bluetooth Low Energy (LE) features
-                Bluetooth device drivers --->
-                <M> HCI USB driver
-                <M> HCI UART driver
-      <*>   RF switch subsystem support --->
+    <M> Bluetooth subsystem support --->
+        [*] Bluetooth Classic (BR/EDR) features
+        <*> RFCOMM protocol support
+        [ ] RFCOMM TTY support
+        < > BNEP protocol support
+        [ ] Multicast filter support
+        [ ] Protocol filter support
+        <*> HIDP protocol support
+        [*] Bluetooth High Speed (HS) features
+        [*] Bluetooth Low Energy (LE) features
+            Bluetooth device drivers --->
+            <M> HCI USB driver
+            <M> HCI UART driver
+    <*> RF switch subsystem support --->
     Device Drivers --->
-          HID support --->
-            <*> User-space I/O driver support for HID subsystem
+        HID support --->
+        <*> User-space I/O driver support for HID subsystem
 File systems  --->
     <*> Second extended fs support
         [*] Ext2 extended attributes
@@ -513,9 +513,12 @@ USE="python_single_target_python2_7 -python_single_target_python3_4"
 3，全局USE设置会导致依赖冲突和依赖导致的编译错误，大多数让人头痛的问题都来源于这里。
 ------------------------------------------------------------------------------------------------------------------
 解决系统时间不同步问题（同步网络时间）：
-# emerge --ask net-misc/ntp     //网络时间同步工具
+# emerge --ask net-misc/ntp     //网络时间同步工具（备用）
+# ntpdate time.windows.com     //同步网络时间（备用）
+------------------------------------------------------------------------------------------------------------------
+# systemctl enable systemd-timesyncd.service
+# systemctl start systemd-timesyncd.service
 # timedatectl set-timezone Asia/Shanghai     //设置中国上海时区
-# ntpdate time.windows.com     //同步网络时间
-# timedatectl set-local-rtc 1     //要将硬件时钟设置为当前系统时钟（本地时间标准）
+# timedatectl set-local-rtc 0     //要将硬件时钟设置为当前系统时钟（UTC时间标准）
 # timedatectl set-ntp 1     //启用网络时间同步
 ==================================================================================================================
