@@ -516,6 +516,19 @@ USE="python_single_target_python2_7 -python_single_target_python3_4"
 # emerge --ask net-misc/ntp     //网络时间同步工具（备用）
 # ntpdate time.windows.com     //同步网络时间（备用）
 ------------------------------------------------------------------------------------------------------------------
+Emacs补全配置备忘(1)：
+git clone https://github.com/Valloric/ycmd.git .ycmd
+cd .ycmd
+git submodule update --init --recursive
+./build.py --help     //(备选项)查看构建选项。
+./build.py --rust-completer --build-dir BUILD_DIR
+------------------------------------------------------------------------------------------------------------------
+Emacs补全配置备忘(2)：
+sudo ln -s ~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src /home/src
+rustup update
+rustup install nightly
+cargo +nightly install racer
+------------------------------------------------------------------------------------------------------------------
 # systemctl enable systemd-timesyncd.service
 # systemctl start systemd-timesyncd.service
 # timedatectl set-timezone Asia/Shanghai     //设置中国上海时区
