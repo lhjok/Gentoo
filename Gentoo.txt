@@ -240,6 +240,13 @@ Device Drivers  --->
         HID support --->
         <*> User-space I/O driver support for HID subsystem
 File systems  --->
+    [*] Network File Systems --->
+        [*] CIFS support (advanced network filesystem, SMBFS successor)--->
+            [*] CIFS Statistics
+                [*] Extended Statistics
+            [*] CIFS Extended Attributes
+                [*] CIFS POSIX Extentions
+            [*] SMB2 and SMB3 network file system support
     <*> Second extended fs support
         [*] Ext2 extended attributes
         [*] Ext2 POSIX Access Control Lists (NEW)
