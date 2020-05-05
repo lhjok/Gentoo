@@ -293,7 +293,7 @@ File systems  --->
 =============================================================================================================
 LANG="zh_CN.utf8"
 =============================================================================================================
-# nano -w /etc/systemd/network/50-dhcp.network
+# nano -w /etc/systemd/network/dhcp.network
 =============================================================================================================
 [Match]
 Name=enp0s31f6
@@ -436,17 +436,18 @@ EndSection
 # brctl addif vnet0 enp0s31f6    //绑定硬件网卡到虚拟网卡
 # brctl stp vnet0 on    //开启STP服务
 # brctl show    //查看桥接网络（需如下所示方可继续下面步骤）
+# systemctl enable systemd-resolved      //开机启动网络名字解析器
 =============================================================================================================
 bridge name    bridge id            STP enabled    interfaces
 vnet0          8000.f2e0c273a468    yes            enp0s31f6
 =============================================================================================================
-# vim /etc/systemd/network/MyBridge.netdev
+# vim /etc/systemd/network/MyBridge.netdev    //使用桥接网络。
 =============================================================================================================
 [NetDev]
 Name=vnet0
 Kind=bridge
 =============================================================================================================
-# vim /etc/systemd/network/MyEth.network
+# vim /etc/systemd/network/MyEth.network    //绑定物理网卡。
 =============================================================================================================
 [Match]
 Name=enp0s31f6
@@ -454,16 +455,26 @@ Name=enp0s31f6
 [Network]
 Bridge=vnet0
 =============================================================================================================
-# vim /etc/systemd/network/MyBridge.network    //两个配置相同，可选:【DHCP=v4】替换[Network]下面三行
-# vim /etc/systemd/network/50-dhcp.network    //本地网络和虚拟网络都让桥接来分配IP地址
+# vim /etc/systemd/network/MyBridge.network    //配置桥接网络。
+# rm -f /etc/systemd/network/dhcp.network    //原网络配置不需要了。
 =============================================================================================================
 [Match]
 Name=vnet0
 
 [Network]
-DNS=192.168.2.1
-Address=192.168.2.20/30     //20到30是桥接分配IP范围，20必需与原配本地IP一致。
-Gateway=192.168.2.1
+DHCP=ipv4
+
+[DHCP]
+RouteMetric=10
+==================================================================================================================
+配置各软件用户组：
+gpasswd -a lhjok lp     //添加到打印机用户组
+gpasswd -a lhjok lpadmin     //添加到打印机用户组
+systemctl start cups.service
+systemctl enable cups.service
+gpasswd -a lhjok kvm     //添加到kvm用户组
+useradd -m -G audio,cdrom,video,cdrw,usb,users kodi      //创建新的系统用户
+gpasswd --add kodi dialout     //添加kodi到dialout用户组
 ==================================================================================================================
 安装Flatpak环境：
 $ sudo mkdir /var/lib/layman/flatpak-overlay
@@ -525,19 +536,6 @@ USE="python_single_target_python2_7 -python_single_target_python3_4"
 解决系统时间不同步问题（同步网络时间）：
 # emerge --ask net-misc/ntp     //网络时间同步工具（备用）
 # ntpdate time.windows.com     //同步网络时间（备用）
-==================================================================================================================
-Emacs补全配置备忘(1)：
-git clone https://github.com/Valloric/ycmd.git .ycmd
-cd .ycmd
-git submodule update --init --recursive
-./build.py --help     //(备选项)查看构建选项。
-./build.py --rust-completer --build-dir BUILD_DIR
-==================================================================================================================
-Emacs补全配置备忘(2)：
-sudo ln -s ~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/src /home/src
-rustup update
-rustup install nightly
-cargo +nightly install racer
 ==================================================================================================================
 # systemctl enable systemd-timesyncd.service
 # systemctl start systemd-timesyncd.service
