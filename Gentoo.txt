@@ -78,7 +78,7 @@ nameserver 114.114.114.114     //可以设置成路由器服务IP地址【例：
 配置USE变量：
 # nano -w /etc/portage/make.conf     //警告：全局USE设置需要慎重，大多问题都是出自于这里。
 =============================================================================================================
-USE="gtk gnome wayland xft -qt4 -kde qt5 gtkstyle alsa amdgpu pcre16 mmx sse sse2 upnp-av"
+USE="gtk gnome wayland xft -qt4 -kde qt5 gtkstyle alsa amdgpu pcre16 mmx sse sse2 upnp-av samba"
 LINGUAS="zh_CN"
 PORTDIR_OVERLAY="${PORTDIR} ${PORTDIR_OVERLAY}"
 =============================================================================================================
@@ -104,7 +104,7 @@ LANG="zh_CN.UTF-8"
 # env-update && source /etc/profile && export PS1="(chroot) $PS1"
 =============================================================================================================
 安装最新内核源码:
-# echo "=sys-kernel/gentoo-sources-4.19.37" >> /etc/portage/package.keywords
+# echo "=sys-kernel/gentoo-sources-5.6.9" >> /etc/portage/package.accept_keywords
 # emerge --ask sys-kernel/gentoo-sources
 =============================================================================================================
 # emerge --ask sys-apps/pciutils
@@ -222,6 +222,8 @@ Device Drivers  --->
         (amdgpu/polaris10_ce.bin amdgpu/polaris10_k_smc.bin amdgpu/polaris10_mc.bin amdgpu/polaris10_me.bin amdgpu/polaris10_mec2.bin amdgpu/polaris10_mec.bin amdgpu/polaris10_pfp.bin amdgpu/polaris10_rlc.bin amdgpu/polaris10_sdma1.bin amdgpu/polaris10_sdma.bin amdgpu/polaris10_smc.bin amdgpu/polaris10_smc_sk.bin amdgpu/polaris10_uvd.bin amdgpu/polaris10_vce.bin amdgpu/polaris10_ce_2.bin amdgpu/polaris10_me_2.bin amdgpu/polaris10_mec_2.bin amdgpu/polaris10_pfp_2.bin amdgpu/polaris10_mec2_2.bin)    // 这里回车输入括号内容
         (/lib/firmware) Firmware blobs root directory    // 这里回车输入括号内容
 [*] Networking support --->
+    Networking options  --->
+      <M> 802.1d Ethernet Bridging
     <M> Bluetooth subsystem support --->
         [*] Bluetooth Classic (BR/EDR) features
         <*> RFCOMM protocol support
@@ -350,35 +352,21 @@ Root登陆后设置用户及密码：
 # useradd -m -G users,wheel,audio -s /bin/bash lhjok
 # passwd lhjok
 =============================================================================================================
-安装Guix软件包管理器：
-# emerge --ask sys-apps/guix      //GUN Guix软件包管理器
-# systemctl enable guix-daemon.service      //开机启动守护进程
-# nano -w /etc/profile      //配置全局环境变量
+配置全局环境变量。
+# nano -w /etc/profile
 =============================================================================================================
 export GTK_IM_MODULE=ibus
 export QT_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus
 
 export GOPATH=$HOME/.golang
-export PATH=$PATH:$GOPATH/bin:$HOME/.config/guix/current/bin:$PATH:$HOME/.cargo/bin
-export INFOPATH="$HOME/.config/guix/current/share/info:$INFOPATH"
+export PATH=$PATH:$GOPATH/bin:$PATH:$HOME/.cargo/bin
 =============================================================================================================
-guix install glibc-locales     //安装语言环境(非特权用户执行)
-guix install font-adobe-source-han-sans:cn     //安装中文字体(非特权用户执行)
-//不要轻易执行：(guix gc)进行垃圾清理，否则每次安装软件，都要重复安装依赖包。
-=============================================================================================================
-rm -rf ~/.local/share/applications
-rm -rf ~/.local/share/icons
-ln -s ~/.guix-profile/share/applications ~/.local/share/applications
-ln -s ~/.guix-profile/share/icons ~/.local/share/icons
-sudo ln -s ~/.local/share/fonts ~/.guix-profile/share/fonts
-sudo rm -f /var/guix/profiles/per-user/lhjok/current-guix
-sudo ln -sf /var/guix/profiles/per-user/lhjok/guix-profile /var/guix/profiles/per-user/lhjok/current-guix
-=============================================================================================================
-$ nano -w ~/.bash_profile
-export GUIX_LOCPATH=$HOME/.guix-profile/lib/locale
-GUIX_PROFILE="$HOME/.guix-profile" ; \
-source "$HOME/.guix-profile/etc/profile"
+常用包管理配置文件。
+echo "=***/***-***" >> /etc/portage/package.mask     //屏蔽不安装的软件
+echo "=***/***-***" >> /etc/portage/package.accept_keywords      //安装非稳定软件包
+echo "=***/***-*** ***" >> /etc/portage/package.use/util-linux      //添加软件包USE依赖
+echo "=***/***-*** ***" >> /etc/portage/package.license     //添加非开源软件包授权
 =============================================================================================================
 安装GNOME桌面环境：
 # emerge --ask --update --deep --newuse @world
@@ -405,10 +393,7 @@ EndSection
 # layman -L && layman -a gentoo-zh
 # emerge --sync
 安装ibus智能拼音输入法：
-# emerge --ask app-i18n/ibus-table      //安装中文框架
-# emerge --ask app-i18n/ibus-table-chinese      //安装中文框架
 # emerge --ask app-i18n/ibus-libpinyin      //安装智能拼音输入法
-# emerge --ask app-i18n/ibus-rime     //安装五笔等输入法
 # emerge --ask dev-lang/go      //安装Go编程语言
 =============================================================================================================
 安装常用工具：
@@ -424,14 +409,14 @@ EndSection
 # emerge --ask app-office/wps-office     //安装WPS办公套件
 清理系统常用命令：
 # emerge --depclean     //清楚孤立的软件包
-# rm -f /usr/portage/distfiles/*     //删除下载目录下的文件
+# rm -f /var/cache/distfiles/*     //删除下载目录下的文件
 # rm -f /root/.bash_history      //删除历史终端记录
 安装Virt-Manager虚拟机管理软件：
-# echo ">=net-misc/spice-gtk-0.31 usbredir" >> /etc/portage/package.use
-# echo ">=app-emulation/libvirt-2.1.0-r2 virt-network xen" >> /etc/portage/package.use
-# echo ">=app-emulation/qemu-2.7.0-r5 spice usbredir xen nfs xfs virtfs virgl" >> /etc/portage/package.use
-# echo ">=net-dns/dnsmasq-2.76 script" >> /etc/portage/package.use
-# echo ">=x11-drivers/xf86-video-qxl-0.1.4 xspice" >> /etc/portage/package.use
+# echo ">=net-misc/spice-gtk-*** usbredir" >> /etc/portage/package.use/util-linux
+# echo ">=app-emulation/libvirt-*** virt-network xen" >> /etc/portage/package.use/util-linux
+# echo ">=app-emulation/qemu-*** spice usbredir xen nfs xfs virtfs virgl" >> /etc/portage/package.use/util-linux
+# echo ">=net-dns/dnsmasq-*** script" >> /etc/portage/package.use/util-linux
+# echo ">=x11-drivers/xf86-video-qxl-*** xspice" >> /etc/portage/package.use/util-linux
 # emerge --ask app-emulation/virt-manager     //虚拟机管理器
 # emerge --ask x11-drivers/xf86-video-qxl     //安装KVM显示驱动
 # systemctl enable libvirtd.service    //默认启动虚拟机守护进程
@@ -499,7 +484,7 @@ $ sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flath
 $ sudo flatpak install flathub io.github.jliljebl.Flowblade
 ==================================================================================================================
 安装PHP环境：
-# echo ">=dev-lang/php-7.0.15 xmlreader xmlwriter zip mysqli fpm cgi -truetype -exif" >> /etc/portage/package.use
+# echo ">=dev-lang/php-7.0.15 xmlreader xmlwriter zip mysqli fpm cgi -truetype -exif" >> /etc/portage/package.use/util-linux
 # emerge --ask dev-lang/php    //安装PHP编程语言
 # systemctl start php-fpm@7.0.service      //启动PHP-FPM服务
 # systemctl enable php-fpm@7.0.service      //开机启动PHP-FPM服务
