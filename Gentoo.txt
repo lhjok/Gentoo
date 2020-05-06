@@ -128,6 +128,9 @@ FIRMWARE_DIR="/lib/firmware"
 =============================================================================================================
 # genkernel --menuconfig --install all     //在Genkernel的基础上修改，可防止错误配置导致内核启动失败。（推荐）
 =============================================================================================================
+General setup  --->
+    -*- Namespaces support  --->
+        [*]   User namespace
 Gentoo Linux --->
     Support for init systems, system and service managers --->
         [*] systemd
