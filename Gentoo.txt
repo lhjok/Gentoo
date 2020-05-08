@@ -126,7 +126,7 @@ LANG="zh_CN.UTF-8"
 UDEV="yes"
 FIRMWARE_DIR="/lib/firmware"
 =============================================================================================================
-# genkernel --menuconfig --install all     //在Genkernel的基础上修改，可防止错误配置导致内核启动失败。（推荐）
+# genkernel --menuconfig --install all     //在Genkernel的基础上修改，可防止错误配置导致内核启动失败。（推荐：记得要保存配置文件）
 =============================================================================================================
 General setup  --->
     -*- Namespaces support  --->
@@ -305,18 +305,18 @@ Name=enp0s31f6
 DHCP=yes
 =============================================================================================================
 系统守护进程管理网络配置:
-# systemctl enable systemd-networkd.service
 # systemctl start systemd-networkd.service
-# systemctl enable sshd.service
+# systemctl enable systemd-networkd.service
+# systemctl start systemd-resolved.service
+# systemctl enable systemd-resolved.service
 # systemctl start sshd.service
+# systemctl enable sshd.service
+=============================================================================================================
 设置SSH远程登陆权限：
 # nano -w /etc/ssh/sshd_config
 =============================================================================================================
 Port 22
 PermitRootLogin yes
-=============================================================================================================
-# systemctl start systemd-resolved.service
-# systemctl enable systemd-resolved.service
 =============================================================================================================
 设置Root密码：
 # passwd
@@ -368,8 +368,8 @@ export PATH=$PATH:$GOPATH/bin:$PATH:$HOME/.cargo/bin
 常用包管理配置文件。
 echo "=***/***-***" >> /etc/portage/package.mask     //屏蔽不安装的软件
 echo "=***/***-***" >> /etc/portage/package.accept_keywords      //安装非稳定软件包
-echo "=***/***-*** ***" >> /etc/portage/package.use/util-linux      //添加软件包USE依赖
-echo "=***/***-*** ***" >> /etc/portage/package.license     //添加非开源软件包授权
+echo ">=***/***-*** ***" >> /etc/portage/package.use/util-linux      //添加软件包USE依赖
+echo ">=***/***-*** ***" >> /etc/portage/package.license     //添加非开源软件包授权
 =============================================================================================================
 安装GNOME桌面环境：
 # emerge --ask --update --deep --newuse @world
@@ -396,6 +396,7 @@ EndSection
 # layman -L && layman -a gentoo-zh
 # emerge --sync
 安装ibus智能拼音输入法：
+# emerge --ask app-i18n/ibus-rime      //安装拼音输入法 (推荐)
 # emerge --ask app-i18n/ibus-libpinyin      //安装智能拼音输入法
 # emerge --ask dev-lang/go      //安装Go编程语言
 =============================================================================================================
@@ -478,6 +479,16 @@ systemctl enable cups.service
 gpasswd -a lhjok kvm     //添加到kvm用户组
 useradd -m -G audio,cdrom,video,cdrw,usb,users kodi      //创建新的系统用户
 gpasswd --add kodi dialout     //添加kodi到dialout用户组
+==================================================================================================================
+(升级/修改)重新安装内核。
+# mount /dev/sdb3 /boot    //挂载bool分区。
+# emerge -C sys-kernel/gentoo-sources      //卸载旧内核。
+# rm -rf /usr/src/gentoo-sources-*.*.*      //删除旧内核文件夹。
+# rm -rf /usr/src/linux     //删除旧内核文件夹的符合链接。
+==================================================================================================================
+# emerge --ask sys-kernel/gentoo-sources     //重新安装内核。
+# cd /usr/src/linux
+# genkernel --menuconfig --install all     //在你之前的原配置文件内添加或修改内核配置，编译完后覆盖安装。
 ==================================================================================================================
 安装Flatpak环境：
 $ sudo mkdir /var/lib/layman/flatpak-overlay
