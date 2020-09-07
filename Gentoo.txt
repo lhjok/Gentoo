@@ -358,9 +358,10 @@ Root登陆后设置用户及密码：
 配置全局环境变量(~/.profile ->会屏蔽以下设置)。
 # nano -w /etc/profile
 =============================================================================================================
-export GTK_IM_MODULE=fcitx
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
+export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus
+ibus-daemon -d
 
 export ANDROID_HOME=/opt/android-sdk-linux
 export PUB_HOSTED_URL=https://pub.flutter-io.cn
@@ -492,6 +493,11 @@ systemctl enable cups.service
 gpasswd -a lhjok kvm     //添加到kvm用户组
 useradd -m -G audio,cdrom,video,cdrw,usb,users kodi      //创建新的系统用户
 gpasswd --add kodi dialout     //添加kodi到dialout用户组
+==================================================================================================================
+（长时间未更新系统）滚动更新系统。
+emerge-webrsync  //这步很关键（--sync）可能会同步不了。
+emerge --ask -u sys-apps/portage  //先更新portage系统。
+emerge --ask --update --deep --newuse @world  //更新整个系统。
 ==================================================================================================================
 (升级/修改)重新安装内核。
 # mount /dev/sdb3 /boot    //挂载bool分区。
